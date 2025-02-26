@@ -67,11 +67,12 @@ const baseExtensions = [
   })
 ];
 
+// Fix: Define language extensions directly
 const languageExtensions = {
-  python: () => python(),
-  json: () => json(),
-  yaml: () => yaml(),
-  html: () => html(),
+  python,
+  json,
+  yaml,
+  html,
 };
 
 export default function CodeEditor({
@@ -125,6 +126,7 @@ export default function CodeEditor({
       extensions.push(EditorView.lineWrapping);
     }
 
+    // Fix: Changed how language extensions are applied
     const languageExtension = languageExtensions[language as keyof typeof languageExtensions];
     if (languageExtension) {
       extensions.push(languageExtension());
@@ -150,9 +152,9 @@ export default function CodeEditor({
     <div ref={setRefs} className={cn('w-full h-full bg-card text-foreground', background, className)}>
       <CodeMirror
         placeholder={placeholder}
-        theme={myTheme}
+        // theme={myTheme}
         className="h-full"
-        extensions={extensions}
+        // extensions={extensions}
         editable={editable}
         value={value}
         onChange={onChange}

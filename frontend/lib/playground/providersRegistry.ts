@@ -18,8 +18,12 @@ const providersInstanceMap = {
   ["openai-azure"]: createAzure,
 };
 
-export const getModel = <P extends Provider, K extends string>(key: `${P}:${K}`, apiKey: string) => {
-  const [provider, model] = key.split(":") as [P, K];
+export const getProviderInstance = <P extends Provider, K extends string>(key: `${P}:${K}`, apiKey: string) => {
+  let [provider, model] = key.split(":") as [P, K];
+
+  if (model === "claude-3-7-sonnet-20250219-thinking") {
+    model = "claude-3-7-sonnet-20250219" as K;
+  }
 
   if (!provider || !model) {
     throw new Error(`Invalid key format: ${key}. Expected format: "provider:model"`);

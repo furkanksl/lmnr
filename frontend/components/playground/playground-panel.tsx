@@ -95,7 +95,8 @@ export default function PlaygroundPanel({ apiKeys, isUpdating }: { apiKeys: Prov
           <div className="flex gap-4">
             <div className="flex-1 flex flex-col gap-2">
               <div className="text-sm font-medium">Output</div>
-              <Formatter value={output} editable={false} defaultMode="json" />
+              {output}
+              {/* <Formatter value={output} editable={false} defaultMode="json" /> */}
             </div>
           </div>
         </div>

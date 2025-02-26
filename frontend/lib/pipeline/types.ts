@@ -188,6 +188,14 @@ export const providers: { provider: Provider; models: LanguageModel[] }[] = [
         id: "anthropic:claude-3-5-haiku-20241022",
         name: "claude-3-5-haiku-20241022",
       },
+      {
+        id: "anthropic:claude-3-5-sonnet-20250219",
+        name: "claude-3-5-sonnet-20250219",
+      },
+      {
+        id: "anthropic:claude-3-7-sonnet-20250219-thinking",
+        name: "claude-3-7-sonnet-20250219-thinking",
+      },
     ],
   },
   {

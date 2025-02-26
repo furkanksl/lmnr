@@ -6,7 +6,7 @@ import { decodeApiKey } from "@/lib/crypto";
 import { db } from "@/lib/db/drizzle";
 import { providerApiKeys } from "@/lib/db/migrations/schema";
 import { Provider, providerToApiKey } from "@/lib/pipeline/types";
-import { getModel } from "@/lib/playground/providersRegistry";
+import { getProviderInstance } from "@/lib/playground/providersRegistry";
 
 export async function POST(req: Request) {
   try {
@@ -18,7 +18,7 @@ export async function POST(req: Request) {
       throw new Error(`Messages doesn't match structure: ${parseResult.error}`);
     }
 
-    const provider = model.split(":")[0] as Provider;
+    const [provider, modelId] = model.split(":") as [Provider, string];
 
     const apiKeyName = providerToApiKey[provider];
 
@@ -37,11 +37,25 @@ export async function POST(req: Request) {
     }
 
     const decodedKey = await decodeApiKey(key.name, key.nonceHex, key.value);
+    const providerOptions: Record<string, any> = {};
+
+    if (provider === "anthropic" && modelId === "claude-3-7-sonnet-20250219-thinking") {
+      providerOptions["anthropic"] = {
+        thinking: {
+          type: "enabled",
+          budgetTokens: 8096,
+        },
+      };
+    }
+
+    const providerInstance = getProviderInstance(model, decodedKey);
 
     const result = streamText({
-      model: getModel(model, decodedKey),
+      model: providerInstance,
       messages,
-      maxTokens: 1024,
+      maxTokens: 10000,
+      temperature: 1,
+      providerOptions
     });
 
     return result.toTextStreamResponse();
