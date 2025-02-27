@@ -43,7 +43,7 @@ export async function POST(req: Request) {
       providerOptions["anthropic"] = {
         thinking: {
           type: "enabled",
-          budgetTokens: 8096,
+          budgetTokens: 25000,
         },
       };
     }
@@ -53,7 +53,7 @@ export async function POST(req: Request) {
     const result = streamText({
       model: providerInstance,
       messages,
-      maxTokens: 10000,
+      maxTokens: 30000,
       temperature: 1,
       providerOptions
     });

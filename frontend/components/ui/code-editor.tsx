@@ -152,9 +152,9 @@ export default function CodeEditor({
     <div ref={setRefs} className={cn('w-full h-full bg-card text-foreground', background, className)}>
       <CodeMirror
         placeholder={placeholder}
-        // theme={myTheme}
+        theme={myTheme}
         className="h-full"
-        // extensions={extensions}
+        extensions={extensions}
         editable={editable}
         value={value}
         onChange={onChange}
