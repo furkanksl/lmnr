@@ -21,6 +21,30 @@ export const renderTemplates = pgTable("render_templates", {
   }).onUpdate("cascade").onDelete("cascade"),
 ]);
 
+export const agentMessages = pgTable("agent_messages", {
+  createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+  id: uuid().defaultRandom().primaryKey().notNull(),
+  chatId: uuid("chat_id").notNull(),
+  userId: uuid("user_id").notNull(),
+  messageType: text("message_type").default('').notNull(),
+  content: jsonb().default({}),
+}, (table) => [
+  foreignKey({
+    columns: [table.userId],
+    foreignColumns: [users.id],
+    name: "agent_message_to_user_fkey"
+  }).onUpdate("cascade").onDelete("cascade"),
+]);
+
+export const agentSessions = pgTable("agent_sessions", {
+  createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+  chatId: uuid("chat_id").primaryKey().notNull(),
+  cdpUrl: text("cdp_url").notNull(),
+  vncUrl: text("vnc_url").notNull(),
+  machineId: text("machine_id"),
+  state: jsonb(),
+});
+
 export const apiKeys = pgTable("api_keys", {
   apiKey: text("api_key").primaryKey().notNull(),
   createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
@@ -41,16 +65,18 @@ export const labelClasses = pgTable("label_classes", {
   createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
   name: text().notNull(),
   projectId: uuid("project_id").notNull(),
-  valueMap: jsonb("value_map").default([false, true]).notNull(),
   description: text(),
   evaluatorRunnableGraph: jsonb("evaluator_runnable_graph"),
   pipelineVersionId: uuid("pipeline_version_id"),
+  color: text().default('rgb(190, 194, 200)').notNull(),
 }, (table) => [
   foreignKey({
     columns: [table.projectId],
     foreignColumns: [projects.id],
     name: "label_classes_project_id_fkey"
   }).onUpdate("cascade").onDelete("cascade"),
+  unique("label_classes_project_id_id_key").on(table.id, table.projectId),
+  unique("label_classes_name_project_id_unique").on(table.name, table.projectId),
 ]);
 
 export const labelingQueueItems = pgTable("labeling_queue_items", {
@@ -404,25 +430,6 @@ export const evaluations = pgTable("evaluations", {
   pgPolicy("select_by_next_api_key", { as: "permissive", for: "select", to: ["anon", "authenticated"], using: sql`is_evaluation_id_accessible_for_api_key(api_key(), id)` }),
 ]);
 
-export const labels = pgTable("labels", {
-  id: uuid().defaultRandom().primaryKey().notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
-  classId: uuid("class_id").notNull(),
-  value: doublePrecision().default(sql`'0'`).notNull(),
-  spanId: uuid("span_id").notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
-  userId: uuid("user_id").defaultRandom(),
-  labelSource: labelSource("label_source").default('MANUAL').notNull(),
-  reasoning: text(),
-}, (table) => [
-  foreignKey({
-    columns: [table.classId],
-    foreignColumns: [labelClasses.id],
-    name: "trace_tags_type_id_fkey"
-  }).onUpdate("cascade").onDelete("cascade"),
-  unique("labels_span_id_class_id_user_id_key").on(table.classId, table.spanId, table.userId),
-]);
-
 export const membersOfWorkspaces = pgTable("members_of_workspaces", {
   workspaceId: uuid("workspace_id").notNull(),
   userId: uuid("user_id").notNull(),
@@ -496,6 +503,26 @@ export const workspaceUsage = pgTable("workspace_usage", {
     name: "user_usage_workspace_id_fkey"
   }).onUpdate("cascade").onDelete("cascade"),
   unique("user_usage_workspace_id_key").on(table.workspaceId),
+]);
+
+export const labels = pgTable("labels", {
+  id: uuid().defaultRandom().primaryKey().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+  classId: uuid("class_id").notNull(),
+  spanId: uuid("span_id").notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+  userId: uuid("user_id").defaultRandom(),
+  labelSource: labelSource("label_source").default('MANUAL').notNull(),
+  reasoning: text(),
+  projectId: uuid("project_id").notNull(),
+}, (table) => [
+  foreignKey({
+    columns: [table.classId, table.projectId],
+    foreignColumns: [labelClasses.id, labelClasses.projectId],
+    name: "labels_class_id_project_id_fkey"
+  }).onUpdate("cascade").onDelete("cascade"),
+  unique("labels_span_id_class_id_user_id_key").on(table.classId, table.spanId, table.userId),
+  unique("labels_span_id_class_id_key").on(table.classId, table.spanId),
 ]);
 
 export const machines = pgTable("machines", {

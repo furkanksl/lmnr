@@ -1,6 +1,6 @@
 import { relations } from "drizzle-orm/relations";
 
-import { apiKeys, datapointToSpan,datasetDatapoints, datasets, evaluationResults, evaluations, evaluationScores, events, labelClasses, labelClassesForPath, labelingQueueItems, labelingQueues, labels, machines, membersOfWorkspaces, pipelines, pipelineVersions, playgrounds, projectApiKeys, projects, providerApiKeys, renderTemplates, spans, subscriptionTiers, targetPipelineVersions, traces, users, userSubscriptionInfo, workspaces, workspaceUsage } from "./schema";
+import { agentMessages, apiKeys, datapointToSpan,datasetDatapoints, datasets, evaluationResults, evaluations, evaluationScores, events, labelClasses, labelClassesForPath, labelingQueueItems, labelingQueues, labels, machines, membersOfWorkspaces, pipelines, pipelineVersions, playgrounds, projectApiKeys, projects, providerApiKeys, renderTemplates, spans, subscriptionTiers, targetPipelineVersions, traces, users, userSubscriptionInfo, workspaces, workspaceUsage } from "./schema";
 
 export const renderTemplatesRelations = relations(renderTemplates, ({one}) => ({
   project: one(projects, {
@@ -29,17 +29,25 @@ export const projectsRelations = relations(projects, ({one, many}) => ({
   spans: many(spans),
 }));
 
-export const apiKeysRelations = relations(apiKeys, ({one}) => ({
+export const agentMessagesRelations = relations(agentMessages, ({one}) => ({
   user: one(users, {
-    fields: [apiKeys.userId],
+    fields: [agentMessages.userId],
     references: [users.id]
   }),
 }));
 
 export const usersRelations = relations(users, ({many}) => ({
+  agentMessages: many(agentMessages),
   apiKeys: many(apiKeys),
   userSubscriptionInfos: many(userSubscriptionInfo),
   membersOfWorkspaces: many(membersOfWorkspaces),
+}));
+
+export const apiKeysRelations = relations(apiKeys, ({one}) => ({
+  user: one(users, {
+    fields: [apiKeys.userId],
+    references: [users.id]
+  }),
 }));
 
 export const labelClassesRelations = relations(labelClasses, ({one, many}) => ({
@@ -192,13 +200,6 @@ export const evaluationsRelations = relations(evaluations, ({one, many}) => ({
   }),
 }));
 
-export const labelsRelations = relations(labels, ({one}) => ({
-  labelClass: one(labelClasses, {
-    fields: [labels.classId],
-    references: [labelClasses.id]
-  }),
-}));
-
 export const membersOfWorkspacesRelations = relations(membersOfWorkspaces, ({one}) => ({
   user: one(users, {
     fields: [membersOfWorkspaces.userId],
@@ -221,6 +222,13 @@ export const workspaceUsageRelations = relations(workspaceUsage, ({one}) => ({
   workspace: one(workspaces, {
     fields: [workspaceUsage.workspaceId],
     references: [workspaces.id]
+  }),
+}));
+
+export const labelsRelations = relations(labels, ({one}) => ({
+  labelClass: one(labelClasses, {
+    fields: [labels.classId],
+    references: [labelClasses.id]
   }),
 }));
 

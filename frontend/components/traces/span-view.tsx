@@ -2,17 +2,18 @@ import { PlayCircle } from "lucide-react";
 import Link from "next/link";
 import useSWR from "swr";
 
+import LabelsContextProvider from "@/components/labels/labels-context";
+import LabelsList from "@/components/labels/labels-list";
 import { Button } from "@/components/ui/button";
 import { useProjectContext } from "@/contexts/project-context";
 import { Event } from "@/lib/events/types";
-import { Span } from "@/lib/traces/types";
+import { Span, SpanType } from "@/lib/traces/types";
 import { swrFetcher } from "@/lib/utils";
 
 import Formatter from "../ui/formatter";
 import MonoWithCopy from "../ui/mono-with-copy";
 import { Skeleton } from "../ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { AddLabelPopover } from "./add-label-popover";
 import AddToLabelingQueuePopover from "./add-to-labeling-queue-popover";
 import ExportSpansDialog from "./export-spans-dialog";
 import SpanTypeIcon from "./span-type-icon";
@@ -50,25 +51,26 @@ export function SpanView({ spanId }: SpanViewProps) {
             <div className="flex flex-col gap-1">
               <div className="flex flex-none items-center space-x-2">
                 <SpanTypeIcon spanType={span.spanType} />
-                <div className="flex-grow text-xl items-center font-medium truncate max-w-[400px]">{span.name}</div>
+                <div className="text-xl items-center font-medium truncate">{span.name}</div>
+                {span.spanType === SpanType.LLM && (
+                  <Link
+                    href={{ pathname: `/project/${projectId}/playgrounds/create`, query: { spanId: span.spanId } }}
+                    passHref
+                  >
+                    <Button variant="outline">
+                      <PlayCircle className="mr-2" size={16} />
+                      Playground
+                    </Button>
+                  </Link>
+                )}
               </div>
               <MonoWithCopy className="text-muted-foreground">{span.spanId}</MonoWithCopy>
             </div>
             <div className="flex-wrap gap-2 flex flex-row">
               <AddToLabelingQueuePopover span={span} />
               <ExportSpansDialog span={span} />
-              <AddLabelPopover span={span} />
-              <Link
-                href={{ pathname: `/project/${projectId}/playgrounds/create`, query: { spanId: span.spanId } }}
-                passHref
-              >
-                <Button variant="outline">
-                  <PlayCircle className="mr-2" size={16} />
-                  Playground
-                </Button>
-              </Link>
             </div>
-            <div className="flex py-1 gap-2">
+            <div className="flex flex-wrap py-1 gap-2">
               <StatsShields
                 startTime={span.startTime}
                 endTime={span.endTime}
@@ -86,6 +88,9 @@ export function SpanView({ spanId }: SpanViewProps) {
                 {new Date(span.startTime).toLocaleString()}
               </div>
             </div>
+            <LabelsContextProvider>
+              <LabelsList />
+            </LabelsContextProvider>
           </div>
           <TabsList className="border-none text-sm px-4">
             <TabsTrigger value="span" className="z-50">
