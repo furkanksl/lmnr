@@ -69,7 +69,7 @@
     "@uiw/codemirror-themes": "^4.23.10",
     "@uiw/react-codemirror": "^4.23.10",
     "ace-builds": "^1.39.0",
-    "ai": "^4.1.54",
+    "ai": "^4.1.61",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.4",

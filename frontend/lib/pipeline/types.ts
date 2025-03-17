@@ -193,6 +193,10 @@ export const providers: { provider: Provider; models: LanguageModel[] }[] = [
         name: "claude-3-5-sonnet-20250219",
       },
       {
+        id: "anthropic:claude-3-7-sonnet-20250219",
+        name: "claude-3-7-sonnet-20250219",
+      },
+      {
         id: "anthropic:claude-3-7-sonnet-20250219-thinking",
         name: "claude-3-7-sonnet-20250219-thinking",
       },
