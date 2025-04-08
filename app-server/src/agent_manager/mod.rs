@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use agent_manager_impl::AgentManagerImpl;
 use anyhow::Result;
 use async_trait::async_trait;
@@ -10,8 +8,8 @@ use uuid::Uuid;
 pub mod agent_manager_grpc;
 pub mod agent_manager_impl;
 pub mod channel;
-mod cookies;
 pub mod mock;
+mod storage_state;
 pub mod types;
 pub mod worker;
 
@@ -36,7 +34,7 @@ pub trait AgentManagerTrait {
         model_provider: Option<ModelProvider>,
         model: Option<String>,
         enable_thinking: bool,
-        cookies: Vec<HashMap<String, String>>,
+        storage_state: Option<String>,
         return_screenshots: bool,
     ) -> Result<AgentOutput>;
 
@@ -50,7 +48,7 @@ pub trait AgentManagerTrait {
         model_provider: Option<ModelProvider>,
         model: Option<String>,
         enable_thinking: bool,
-        cookies: Vec<HashMap<String, String>>,
+        storage_state: Option<String>,
         return_screenshots: bool,
     ) -> Self::RunAgentStreamStream;
 }

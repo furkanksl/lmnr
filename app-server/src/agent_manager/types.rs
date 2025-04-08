@@ -1,12 +1,10 @@
-use std::collections::HashMap;
-
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
 
 use super::agent_manager_grpc::{
     run_agent_response_stream_chunk::ChunkType as RunAgentResponseStreamChunkTypeGrpc,
-    ActionResult as ActionResultGrpc, AgentOutput as AgentOutputGrpc, Cookie,
+    ActionResult as ActionResultGrpc, AgentOutput as AgentOutputGrpc,
     RunAgentResponseStreamChunk as RunAgentResponseStreamChunkGrpc,
     StepChunkContent as StepChunkContentGrpc,
 };
@@ -55,28 +53,16 @@ impl Into<ActionResult> for ActionResultGrpc {
 pub struct AgentOutput {
     pub result: ActionResult,
     #[serde(skip_serializing)]
-    pub cookies: Option<Vec<HashMap<String, String>>>,
+    pub storage_state: Option<String>,
     // pub state: String,
     pub step_count: Option<u64>,
 }
 
-impl Into<Cookie> for HashMap<String, String> {
-    fn into(self) -> Cookie {
-        Cookie { cookie_data: self }
-    }
-}
-
 impl Into<AgentOutput> for AgentOutputGrpc {
     fn into(self) -> AgentOutput {
-        let cookies = self
-            .cookies
-            .into_iter()
-            .map(|c| c.cookie_data)
-            .collect::<Vec<_>>();
-
         AgentOutput {
             result: self.result.unwrap().into(),
-            cookies: (!cookies.is_empty()).then_some(cookies),
+            storage_state: self.storage_state,
             step_count: self.step_count,
         }
     }

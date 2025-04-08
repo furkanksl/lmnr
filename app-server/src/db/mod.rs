@@ -18,7 +18,7 @@ pub mod spans;
 pub mod stats;
 pub mod trace;
 pub mod user;
-pub mod user_cookies;
+pub mod user_storage_states;
 pub mod utils;
 pub mod workspace;
 

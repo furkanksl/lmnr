@@ -5,7 +5,6 @@ use super::types::{AgentOutput, ModelProvider, RunAgentResponseStreamChunk};
 use super::AgentManagerTrait;
 use anyhow::Result;
 use async_trait::async_trait;
-use std::collections::HashMap;
 use std::pin::Pin;
 use std::sync::Arc;
 use tonic::{transport::Channel, Request};
@@ -42,7 +41,7 @@ impl AgentManagerTrait for AgentManagerImpl {
         model_provider: Option<ModelProvider>,
         model: Option<String>,
         enable_thinking: bool,
-        cookies: Vec<HashMap<String, String>>,
+        storage_state: Option<String>,
         return_screenshots: bool,
     ) -> Result<AgentOutput> {
         let mut client = self.client.as_ref().clone();
@@ -56,7 +55,7 @@ impl AgentManagerTrait for AgentManagerImpl {
             model_provider: model_provider.map(|p| p.to_i32()),
             model,
             enable_thinking: Some(enable_thinking),
-            cookies: cookies.into_iter().map(|c| c.into()).collect(),
+            storage_state,
             return_screenshots: Some(return_screenshots),
         });
 
@@ -75,7 +74,7 @@ impl AgentManagerTrait for AgentManagerImpl {
         model_provider: Option<ModelProvider>,
         model: Option<String>,
         enable_thinking: bool,
-        cookies: Vec<HashMap<String, String>>,
+        storage_state: Option<String>,
         return_screenshots: bool,
     ) -> Self::RunAgentStreamStream {
         let mut client = self.client.as_ref().clone();
@@ -89,7 +88,7 @@ impl AgentManagerTrait for AgentManagerImpl {
             model_provider: model_provider.map(|p| p.to_i32()),
             model,
             enable_thinking: Some(enable_thinking),
-            cookies: cookies.into_iter().map(|c| c.into()).collect(),
+            storage_state,
             return_screenshots: Some(return_screenshots),
         });
 

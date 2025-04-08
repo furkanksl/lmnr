@@ -157,7 +157,7 @@ pub async fn run_agent_manager(
                     request.model_provider,
                     request.model.clone(),
                     request.enable_thinking,
-                    Vec::new(),
+                    None,
                     request.return_screenshots,
                 )
                 .await

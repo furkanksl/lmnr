@@ -2,7 +2,7 @@ use anyhow::Result;
 use sqlx::{FromRow, PgPool};
 use uuid::Uuid;
 
-pub async fn insert_user_cookies(
+pub async fn insert_user_storage_state(
     pool: &PgPool,
     user_id: &Uuid,
     cookies: &Vec<String>,
@@ -38,7 +38,7 @@ pub struct CookieAndNonce {
     pub nonce: String,
 }
 
-pub async fn get_user_cookies(pool: &PgPool, user_id: &Uuid) -> Result<Vec<CookieAndNonce>> {
+pub async fn get_user_storage_state(pool: &PgPool, user_id: &Uuid) -> Result<Vec<CookieAndNonce>> {
     let cookies = sqlx::query_as::<_, CookieAndNonce>(
         "SELECT cookies, nonce FROM user_cookies WHERE user_id = $1",
     )

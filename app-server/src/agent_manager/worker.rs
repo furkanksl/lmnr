@@ -7,7 +7,7 @@ use crate::db::{self, agent_messages::MessageType, DB};
 
 use super::{
     channel::AgentManagerWorkers,
-    cookies,
+    storage_state,
     types::{ModelProvider, RunAgentResponseStreamChunk, WorkerStreamChunk},
     AgentManager, AgentManagerTrait,
 };
@@ -31,15 +31,15 @@ pub async fn run_agent_worker(
     options: RunAgentWorkerOptions,
 ) {
     let cookies = if let Some(user_id) = user_id {
-        match cookies::get_cookies(&db.pool, &user_id).await {
+        match storage_state::get_storage_state(&db.pool, &user_id).await {
             Ok(cookies) => cookies,
             Err(e) => {
                 log::error!("Error getting cookies: {}", e);
-                Vec::new()
+                None
             }
         }
     } else {
-        Vec::new()
+        None
     };
 
     let mut stream = agent_manager
@@ -85,10 +85,14 @@ pub async fn run_agent_worker(
                 }
 
                 if let RunAgentResponseStreamChunk::FinalOutput(final_output) = &chunk {
-                    if let Some(cookies) = final_output.content.cookies.as_ref() {
+                    if let Some(storage_state) = final_output.content.storage_state.as_ref() {
                         if let Some(user_id) = user_id {
-                            if let Err(e) =
-                                cookies::insert_cookies(&db.pool, &user_id, &cookies).await
+                            if let Err(e) = storage_state::insert_storage_state(
+                                &db.pool,
+                                &user_id,
+                                &storage_state,
+                            )
+                            .await
                             {
                                 log::error!("Error inserting cookies: {}", e);
                             }
